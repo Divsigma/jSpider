@@ -1,34 +1,17 @@
 package me.project.parser;
 
-import me.project.Item;
+import me.project.item.Item;
 import me.project.Response;
 
-public class Parser
-{
+public abstract class Parser {
 
-    private String entryUrl;
+    protected String url;
 
-    private String encoding = "utf-8";
+    protected String encoding = "utf-8";
 
-    public Parser(String url, String encoding)
-    {
-        this.entryUrl = url;
-        this.encoding = encoding;
+    abstract public Item process(Response response);
+
+    public String getUrl() {
+        return url;
     }
-
-    public Item process(Response response) {
-        Item item = new Item();
-        return item;
-    }
-
-    public String getEntryUrl()
-    {
-        return entryUrl;
-    }
-
-    public String getEncoding()
-    {
-        return encoding;
-    }
-
 }

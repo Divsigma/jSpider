@@ -31,7 +31,7 @@ public class Downloader {
 
             Scanner in = new Scanner(connection.getInputStream(), encoding);
             while(in.hasNextLine()) {
-                htmlBuffer.append(in.nextLine() + "\n");
+                htmlBuffer.append(in.nextLine());
             }
             response.setHtml(htmlBuffer.toString());
 

@@ -1,7 +1,11 @@
 package me.project;
 
+import me.project.item.Item;
 import me.project.parser.Parser;
+import me.project.pipeline.ConsolePipeline;
+import me.project.pipeline.Pipeline;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,27 +22,37 @@ public class Spider implements Runnable {
 
     private Parser parser = null;
 
-    private Pipeline pipeline = null;
+    private List<Pipeline> pipelines = null;
 
-    Spider(Parser parser) {
-        this.parser = parser;
-    }
-
-    private void initComponent() {
+    Spider() {
         if(this.downloader == null) {
             this.downloader = new Downloader();
         }
-        if(this.pipeline == null) {
-            this.pipeline = new Pipeline();
+        if(this.pipelines == null) {
+            this.pipelines = new LinkedList<Pipeline>();
+            this.pipelines.add(new ConsolePipeline());
         }
+    }
+
+
+    // make Spider can be created and initialized in a chain
+    public Spider parser(Parser parser) {
+        this.parser = parser;
+        return this;
+    }
+
+    public Spider pipeline(Pipeline pipeline) {
+        this.pipelines.add(pipeline);
+        return this;
+    }
+
+    private void initComponent() {
     }
 
     @Override
     public void run() {
 
-        initComponent();
-
-        Response response = this.downloader.download(this.parser.getEntryUrl());
+        Response response = this.downloader.download(this.parser.getUrl());
 
         for (Map.Entry<String, List<String>> entry : response.getHeader().entrySet()) {
             System.out.print(entry.getKey() + ": ");
@@ -50,8 +64,8 @@ public class Spider implements Runnable {
 
         System.out.println(response.getHtml());
 
-        //Item item = this.parser.process(response);
-        //this.pipeline.process(item);
+        Item item = this.parser.process(response);
+        this.pipelines.get(0).process(item);
 
     }
 }

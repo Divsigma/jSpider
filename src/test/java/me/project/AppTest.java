@@ -2,7 +2,9 @@ package me.project;
 
 import static org.junit.Assert.assertTrue;
 
+import me.project.parser.DemoParser;
 import me.project.parser.Parser;
+import me.project.pipeline.ConsolePipeline;
 import org.junit.Test;
 
 import java.io.PrintWriter;
@@ -35,7 +37,10 @@ public class AppTest
 
         try {
 
-            new Spider(new Parser(args[0], "utf-8")).run();
+            new Spider()
+                    .parser(new DemoParser(args[0], "utf-8"))
+                    .pipeline(new ConsolePipeline())
+                    .run();
 
         } catch (Exception e) {
             e.printStackTrace();

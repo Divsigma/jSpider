@@ -9,8 +9,6 @@ public class Response {
 
     private String encoding;
 
-    private byte[] bodyBytes;
-
     private String html;
 
     Response() {
@@ -34,14 +32,6 @@ public class Response {
         } else {
             this.encoding = encoding;
         }
-    }
-
-    public byte[] getBodyBytes() {
-        return bodyBytes;
-    }
-
-    public void setBodyBytes(byte[] bodyBytes) {
-        this.bodyBytes = bodyBytes;
     }
 
     public String getHtml() {
