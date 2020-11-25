@@ -31,14 +31,18 @@ public class DemoParser extends Parser {
 
         // get title
         item.setTitle(doc.title());
-        // get urls
+        // get urls and images
+        List<String> images = new ArrayList<>();
         List<String> urls = new ArrayList<String>();
-        Elements elements = doc.getElementById("post_next_prev").getElementsByClass("p_n_p_prefix");
+        Elements elements = doc.getElementById("list_article").getElementsByClass("list_article_item");
         for(Element ele : elements) {
-            System.out.println(ele.toString());
-            urls.add(ele.attr("href"));
+            // return the value of the first element that has the specific attribute
+            urls.add(ele.getElementsByTag("a").attr("href"));
+            images.add(ele.getElementsByTag("img").attr("src"));
         }
+        System.out.println("== Finish getting urls and images ==");
         item.setUrls(urls);
+        item.setImages(images);
 
         return item;
 

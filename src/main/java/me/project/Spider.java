@@ -52,8 +52,15 @@ public class Spider implements Runnable {
     @Override
     public void run() {
 
-        Response response = this.downloader.download(this.parser.getUrl());
+        String url = this.parser.getUrl();
 
+        // construct Request from url of Parser
+        Request request = new Request(url);
+
+        // download and get Response from Downloader
+        Response response = this.downloader.download(request);
+
+        System.out.println("== Response Header ==");
         for (Map.Entry<String, List<String>> entry : response.getHeader().entrySet()) {
             System.out.print(entry.getKey() + ": ");
             for (String item : entry.getValue()) {
@@ -61,8 +68,6 @@ public class Spider implements Runnable {
             }
             System.out.println();
         }
-
-        System.out.println(response.getHtml());
 
         Item item = this.parser.process(response);
         this.pipelines.get(0).process(item);

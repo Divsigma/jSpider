@@ -25,4 +25,12 @@ public abstract class Item {
     public void setUrls(List<String> urls) {
         this.urls = urls;
     }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
 }
