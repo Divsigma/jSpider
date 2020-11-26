@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import me.project.parser.DemoParser;
 import me.project.parser.Parser;
 import me.project.pipeline.ConsolePipeline;
+import me.project.pipeline.MongoPipeline;
 import org.junit.Test;
 
 import java.io.PrintWriter;
@@ -39,7 +40,7 @@ public class AppTest
 
             new Spider()
                     .parser(new DemoParser(args[0], "utf-8"))
-                    .pipeline(new ConsolePipeline())
+                    .pipeline(new MongoPipeline())
                     .run();
 
         } catch (Exception e) {

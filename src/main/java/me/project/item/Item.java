@@ -4,11 +4,21 @@ import java.util.List;
 
 public abstract class Item {
 
+    private int id = 0;
+
     private String title;
 
     private List<String> urls;
 
     private List<String> images;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;

@@ -25,13 +25,8 @@ public class Spider implements Runnable {
     private List<Pipeline> pipelines = null;
 
     Spider() {
-        if(this.downloader == null) {
-            this.downloader = new Downloader();
-        }
-        if(this.pipelines == null) {
-            this.pipelines = new LinkedList<Pipeline>();
-            this.pipelines.add(new ConsolePipeline());
-        }
+        this.downloader = new Downloader();
+        this.pipelines = new LinkedList<Pipeline>();
     }
 
 
@@ -47,10 +42,15 @@ public class Spider implements Runnable {
     }
 
     private void initComponent() {
+        if(this.pipelines.size() == 0) {
+            this.pipelines.add(new ConsolePipeline());
+        }
     }
 
     @Override
     public void run() {
+
+        initComponent();
 
         String url = this.parser.getUrl();
 
@@ -71,6 +71,8 @@ public class Spider implements Runnable {
 
         Item item = this.parser.process(response);
         this.pipelines.get(0).process(item);
+
+        // release resources ?
 
     }
 }
