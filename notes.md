@@ -65,7 +65,7 @@
 
   - 2.2、Larvavel框架里，`对象通过中间件`的过程似乎类似`对象通过一个中间件handle()方法叠成的匿名函数`的过程
 
-    打算重点去理解`carry()`和`$pipeline($this->passable);`
+    打算重点去理解`carry()`和`$pipeline($this->passable);`（大致流程是：从`$middleware`数组中逆序地解析出绑定的类实例，将类中定义的`handle()`方法层层包装，最后返回成一个闭包函数`$pipeline()`，让`$pipeline()`处理需要通过中间件的请求）
 
     ```php
     /* Kernel.php */
@@ -178,7 +178,15 @@
     }
     ```
 
-    
+- 2、GIVE IT A SHOT
+
+  - > Usage of API documented as @since 1.8+: https://blog.csdn.net/weixin_42687829/article/details/86751174?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control
+
+  - `Arrays.stream().reduce()`不保证是串行执行，如何按照middleware中的顺序生成一个集成的闭包（`Function<Request, Request>`）？最后还是用循环+反射+实例化对象后调用方法来做了orz
+
+  - 还把Response和Request封成Passable，想着方便Middleware接口定义。。。也不知有无用
+
+
 
 
 

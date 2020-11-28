@@ -11,9 +11,7 @@ import org.junit.Test;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Unit test for simple App.
@@ -38,9 +36,15 @@ public class AppTest
 
         try {
 
+            List<String> middlewares = new LinkedList<>(Arrays.asList(
+                    "me.project.middleware.SetCookie",
+                    "me.project.middleware.SetUserAgent"
+            ));
+
             new Spider()
                     .parser(new DemoParser(args[0], "utf-8"))
-                    .pipeline(new MongoPipeline())
+                    .setMiddlewares(middlewares)
+                    .pipeline(new ConsolePipeline())
                     .run();
 
         } catch (Exception e) {

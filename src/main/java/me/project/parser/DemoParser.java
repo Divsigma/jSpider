@@ -1,7 +1,7 @@
 package me.project.parser;
 
 import me.project.item.Item;
-import me.project.Response;
+import me.project.passable.Response;
 import me.project.item.DemoItem;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

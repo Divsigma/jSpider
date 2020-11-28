@@ -1,9 +1,9 @@
-package me.project;
+package me.project.passable;
 
 import java.util.List;
 import java.util.Map;
 
-public class Response {
+public class Response extends Passable {
 
     private Map<String, List<String>> header;
 
@@ -11,7 +11,7 @@ public class Response {
 
     private String html;
 
-    Response() {
+    public Response() {
     }
 
     public Map<String, List<String>> getHeader() {
