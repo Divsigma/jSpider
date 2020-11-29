@@ -36,14 +36,14 @@ public class AppTest
 
         try {
 
-            List<String> middlewares = new LinkedList<>(Arrays.asList(
+            List<String> downloaderMiddleware = new LinkedList<>(Arrays.asList(
                     "me.project.middleware.SetCookie",
                     "me.project.middleware.SetUserAgent"
             ));
 
             new Spider()
                     .parser(new DemoParser(args[0], "utf-8"))
-                    .setMiddlewares(middlewares)
+                    .setDownloaderMiddleware(downloaderMiddleware)
                     .pipeline(new ConsolePipeline())
                     .run();
 

@@ -1,9 +1,12 @@
 package me.project.middleware;
 
-import me.project.passable.Passable;
+import me.project.Request;
+import me.project.Response;
 
 public interface Middleware {
 
-    Passable handle(Passable passable);
+    Object handleRequest(Request request);
+
+    Object handleResponse(Response response);
 
 }

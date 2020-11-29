@@ -1,7 +1,7 @@
 package me.project.parser;
 
 import me.project.item.Item;
-import me.project.passable.Response;
+import me.project.Response;
 
 public abstract class Parser {
 

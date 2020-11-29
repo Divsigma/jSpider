@@ -1,10 +1,10 @@
-package me.project.passable;
+package me.project;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Request extends Passable {
+public class Request {
 
     private String url;
 

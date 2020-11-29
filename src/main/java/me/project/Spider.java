@@ -2,9 +2,6 @@ package me.project;
 
 import me.project.item.Item;
 import me.project.parser.Parser;
-import me.project.passable.Passable;
-import me.project.passable.Request;
-import me.project.passable.Response;
 import me.project.pipeline.ConsolePipeline;
 import me.project.pipeline.Pipeline;
 
@@ -19,7 +16,7 @@ import java.util.*;
  */
 public class Spider implements Runnable {
 
-    private List<String> middlewares = null;
+    private List<String> downloaderMiddleware = null;
 
     private Downloader downloader = null;
 
@@ -27,16 +24,13 @@ public class Spider implements Runnable {
 
     private List<Pipeline> pipelines = null;
 
-    final private String middlewareFunction = "handle";
-
     Spider() {
-        this.middlewares = new LinkedList<>();
-        this.downloader = new Downloader();
+        this.downloaderMiddleware = new LinkedList<>();
         this.pipelines = new LinkedList<>();
     }
 
-    public Spider setMiddlewares(List<String> middlewares) {
-        this.middlewares = middlewares;
+    public Spider setDownloaderMiddleware(List<String> downloaderMiddleware) {
+        this.downloaderMiddleware = downloaderMiddleware;
         return this;
     }
 
@@ -60,6 +54,9 @@ public class Spider implements Runnable {
         if(this.pipelines.size() == 0) {
             this.pipelines.add(new ConsolePipeline());
         }
+        if(this.downloader == null) {
+            this.downloader = new Downloader(downloaderMiddleware);
+        }
     }
 
     @Override
@@ -70,7 +67,7 @@ public class Spider implements Runnable {
         String url = this.parser.getUrl();
 
         // construct Request from url of Parser
-        Request request = this.throughMiddleware(new Request(url));
+        Request request = new Request(url);
 
         // download and get Response from Downloader
         Response response = this.downloader.download(request);
@@ -90,22 +87,6 @@ public class Spider implements Runnable {
         this.pipelines.get(0).process(item);
 
         // release resources ?
-
-    }
-
-    private Request throughMiddleware(Request request) {
-
-        try {
-            for(String name : this.middlewares) {
-                request = (Request) Class.forName(name)
-                        .getMethod(this.middlewareFunction, Passable.class)
-                        .invoke(Class.forName(name).newInstance(), request);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return request;
 
     }
 }

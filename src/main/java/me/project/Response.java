@@ -1,9 +1,9 @@
-package me.project.passable;
+package me.project;
 
 import java.util.List;
 import java.util.Map;
 
-public class Response extends Passable {
+public class Response {
 
     private Map<String, List<String>> header;
 
