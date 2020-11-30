@@ -12,6 +12,8 @@ public abstract class Item {
 
     private List<String> images;
 
+    private List<String> nextUrls;
+
     public int getId() {
         return id;
     }
@@ -42,5 +44,13 @@ public abstract class Item {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public List<String> getNextUrls() {
+        return nextUrls;
+    }
+
+    public void setNextUrls(List<String> nextUrls) {
+        this.nextUrls = nextUrls;
     }
 }

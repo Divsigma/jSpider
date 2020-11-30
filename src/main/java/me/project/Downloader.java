@@ -16,9 +16,12 @@ public class Downloader {
         this.middleware = middleware;
     }
 
-    public Response download(Request request) {
+    public Object download(Request request) {
 
-        this.throughRequest(request);
+        Object result = this.throughRequest(request);
+        if(result != null) {
+            return result;
+        }
 
         Response response = new Response();
 
@@ -58,7 +61,10 @@ public class Downloader {
 
             response.setHtml(htmlBuilder.toString());
 
-            this.throughResponse(response);
+            result = this.throughResponse(response);
+            if(result != null) {
+                return result;
+            }
 
 
         } catch (Exception e) {
@@ -69,7 +75,7 @@ public class Downloader {
 
     }
 
-    private void throughRequest(Request request) {
+    private Object throughRequest(Request request) {
 
         try {
             for(String name : this.middleware) {
@@ -80,19 +86,21 @@ public class Downloader {
                     continue;
                 } else if(result.getClass() == Request.class) {
                     System.out.println("Stop at a new Request");
-                    break;
+                    return result;
                 } else if(result.getClass() == Response.class) {
                     System.out.println("Stop at a Response");
-                    break;
+                    return result;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        return null;
+
     }
 
-    private void throughResponse(Response response) {
+    private Object throughResponse(Response response) {
 
         try {
             ListIterator<String> iterator = this.middleware.listIterator(this.middleware.size());
@@ -106,15 +114,14 @@ public class Downloader {
                     continue;
                 } else if(result.getClass() == Request.class) {
                     System.out.println("Stop at a new Request");
-                    break;
-                } else if(result.getClass() == Response.class) {
-                    System.out.println("Stop at a Response");
-                    break;
+                    return result;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return null;
 
     }
 

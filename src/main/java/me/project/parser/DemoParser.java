@@ -36,6 +36,7 @@ public class DemoParser extends Parser {
         // get urls and images
         List<String> images = new ArrayList<>();
         List<String> urls = new ArrayList<>();
+        List<String> nextUrls = new ArrayList<>();
         Elements elements = doc.getElementById("list_article").getElementsByClass("list_article_item");
         for(Element ele : elements) {
             // return the value of the first element that has the specific attribute
@@ -45,6 +46,10 @@ public class DemoParser extends Parser {
         System.out.println("== Finish getting urls and images ==");
         item.setUrls(urls);
         item.setImages(images);
+
+        nextUrls.add(urls.get(0));
+        // item.setNextUrls(nextUrls);
+
 
         return item;
 

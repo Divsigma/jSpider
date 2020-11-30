@@ -51,7 +51,7 @@
 
 
 
-#### 2020.11.27（中间件）
+#### 2020.11.27（中间件）-2020.11.29
 
 - 1、如何设计中间件？
 
@@ -184,11 +184,14 @@
 
   - `Arrays.stream().reduce()`不保证是串行执行，如何按照middleware中的顺序生成一个集成的闭包（`Function<Request, Request>`）？最后还是用循环+反射+实例化对象后调用方法来做了orz
 
-  - 还把Response和Request封成Passable，想着方便Middleware接口定义。。。也不知有无用
+  - 还把Response和Request封成Passable，想着方便Middleware接口定义。。。也不知有无用——用Object应该就可以！
 
 
 
+#### 2020.11.30（调度器）
 
+- 1、使用了最简单LinkedList（实现了Queue接口），未考虑多线程等其他情况。因为Scheduler有一个存放Request对象的容器和两个必须实现的方法（插入和取出），所以暂时把它设计成了抽象类
+- 2、新的Request加入队列都是在Spider执行的，加入的情况有DownloaderMiddleware返回Request时以及能从Item中解析出的nextUrls时——但**有些问题，是否需要设计成让Request能使用特定的Parser？如果需要如何设计？像那种主页是一个list（智联招聘、百度贴吧、推酷...）的网站比比皆是，似乎需要对特定的Request使用特定的Parser。或者只需要针对主页定制一个Parser就行？这样一个Spider就维持一个SiteParser和ItemParser**
 
 
 

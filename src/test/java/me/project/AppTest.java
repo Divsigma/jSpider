@@ -6,6 +6,7 @@ import me.project.parser.DemoParser;
 import me.project.parser.Parser;
 import me.project.pipeline.ConsolePipeline;
 import me.project.pipeline.MongoPipeline;
+import me.project.scheduler.QueueScheduler;
 import org.junit.Test;
 
 import java.io.PrintWriter;
@@ -45,6 +46,7 @@ public class AppTest
                     .parser(new DemoParser(args[0], "utf-8"))
                     .setDownloaderMiddleware(downloaderMiddleware)
                     .pipeline(new ConsolePipeline())
+                    .scheduler(new QueueScheduler())
                     .run();
 
         } catch (Exception e) {

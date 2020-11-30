@@ -4,6 +4,9 @@ import me.project.item.Item;
 import me.project.parser.Parser;
 import me.project.pipeline.ConsolePipeline;
 import me.project.pipeline.Pipeline;
+import me.project.scheduler.QueueScheduler;
+import me.project.scheduler.Scheduler;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 import java.util.*;
 
@@ -15,6 +18,8 @@ import java.util.*;
  * 4. Item is then passed through Pipeline
  */
 public class Spider implements Runnable {
+
+    private Scheduler scheduler = null;
 
     private List<String> downloaderMiddleware = null;
 
@@ -34,7 +39,12 @@ public class Spider implements Runnable {
         return this;
     }
 
-    // make Spider can be created and initialized in a chain
+    // to make Spider can be created and initialized in a chain
+    public Spider scheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+        return this;
+    }
+
     public Spider parser(Parser parser) {
         this.parser = parser;
         return this;
@@ -57,6 +67,9 @@ public class Spider implements Runnable {
         if(this.downloader == null) {
             this.downloader = new Downloader(downloaderMiddleware);
         }
+        if(this.scheduler == null) {
+            this.scheduler = new QueueScheduler();
+        }
     }
 
     @Override
@@ -64,27 +77,44 @@ public class Spider implements Runnable {
 
         initComponent();
 
-        String url = this.parser.getUrl();
+        // construct Request from url of Parser and push it to Scheduler
+        this.scheduler.push(new Request(this.parser.getUrl()));
 
-        // construct Request from url of Parser
-        Request request = new Request(url);
+        while(!this.scheduler.empty()) {
+            // obtain a Request from Scheduler
+            Request request = this.scheduler.poll();
 
-        // download and get Response from Downloader
-        Response response = this.downloader.download(request);
-
-        System.out.println("== Response Header ==");
-        for (Map.Entry<String, List<String>> entry : response.getHeader().entrySet()) {
-            System.out.print(entry.getKey() + ": ");
-            for (String item : entry.getValue()) {
-                System.out.print(item + " ");
+            // download and get Response from Downloader
+            Object result = this.downloader.download(request);
+            if(result.getClass() == Request.class) {
+                this.scheduler.push((Request) result);
+                continue;
             }
+            Response response = (Response) result;
+
+            System.out.println("== Response Header ==");
+            for (Map.Entry<String, List<String>> entry : response.getHeader().entrySet()) {
+                System.out.print(entry.getKey() + ": ");
+                for (String item : entry.getValue()) {
+                    System.out.print(item + " ");
+                }
+                System.out.println();
+            }
+
+            // process the Response and push new Request into scheduler
+            System.out.println("== Pushing new Request ==");
+            Item item = this.parser.process(response);
+            if(item.getNextUrls() != null) {
+                for(String url : item.getNextUrls()) {
+                    this.scheduler.push(new Request(url));
+                }
+            }
+
+            this.pipelines.get(0).process(item);
+
             System.out.println();
+
         }
-
-
-        Item item = this.parser.process(response);
-
-        this.pipelines.get(0).process(item);
 
         // release resources ?
 
