@@ -1,10 +1,14 @@
 package me.project.item;
 
+import com.alibaba.fastjson.JSON;
+
 import java.util.List;
 
 public abstract class Item {
 
     private int id = 0;
+
+    private int page = 0;
 
     private String title;
 
@@ -20,6 +24,14 @@ public abstract class Item {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     public String getTitle() {
@@ -52,5 +64,10 @@ public abstract class Item {
 
     public void setNextUrls(List<String> nextUrls) {
         this.nextUrls = nextUrls;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
     }
 }

@@ -6,14 +6,14 @@ import java.util.*;
 
 public class Downloader {
 
-    private List<String> middleware;
+    private List<String> middlewares;
 
     final private String requestFunction = "handleRequest";
 
     final private String responseFunction = "handleResponse";
 
-    Downloader(List<String> middleware) {
-        this.middleware = middleware;
+    Downloader(List<String> middlewares) {
+        this.middlewares = middlewares;
     }
 
     public Object download(Request request) {
@@ -78,7 +78,7 @@ public class Downloader {
     private Object throughRequest(Request request) {
 
         try {
-            for(String name : this.middleware) {
+            for(String name : this.middlewares) {
                 Object result = Class.forName(name)
                         .getMethod(this.requestFunction, Request.class)
                         .invoke(Class.forName(name).newInstance(), request);
@@ -103,7 +103,7 @@ public class Downloader {
     private Object throughResponse(Response response) {
 
         try {
-            ListIterator<String> iterator = this.middleware.listIterator(this.middleware.size());
+            ListIterator<String> iterator = this.middlewares.listIterator(this.middlewares.size());
 
             while(iterator.hasPrevious()) {
                 String name = iterator.previous();

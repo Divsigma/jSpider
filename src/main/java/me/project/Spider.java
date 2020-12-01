@@ -21,7 +21,7 @@ public class Spider implements Runnable {
 
     private Scheduler scheduler = null;
 
-    private List<String> downloaderMiddleware = null;
+    private List<String> downloaderMiddlewares = null;
 
     private Downloader downloader = null;
 
@@ -29,13 +29,13 @@ public class Spider implements Runnable {
 
     private List<Pipeline> pipelines = null;
 
-    Spider() {
-        this.downloaderMiddleware = new LinkedList<>();
+    public Spider() {
+        this.downloaderMiddlewares = new LinkedList<>();
         this.pipelines = new LinkedList<>();
     }
 
-    public Spider setDownloaderMiddleware(List<String> downloaderMiddleware) {
-        this.downloaderMiddleware = downloaderMiddleware;
+    public Spider setDownloaderMiddlewares(List<String> downloaderMiddlewares) {
+        this.downloaderMiddlewares = downloaderMiddlewares;
         return this;
     }
 
@@ -60,12 +60,16 @@ public class Spider implements Runnable {
         return this;
     }
 
+    public void addRequest(Request request) {
+        this.scheduler.push(request);
+    }
+
     private void initComponent() {
         if(this.pipelines.size() == 0) {
             this.pipelines.add(new ConsolePipeline());
         }
         if(this.downloader == null) {
-            this.downloader = new Downloader(downloaderMiddleware);
+            this.downloader = new Downloader(downloaderMiddlewares);
         }
         if(this.scheduler == null) {
             this.scheduler = new QueueScheduler();
@@ -78,7 +82,9 @@ public class Spider implements Runnable {
         initComponent();
 
         // construct Request from url of Parser and push it to Scheduler
-        this.scheduler.push(new Request(this.parser.getUrl()));
+        if(this.parser.getUrl() != null) {
+            this.scheduler.push(new Request(this.parser.getUrl()));
+        }
 
         while(!this.scheduler.empty()) {
             // obtain a Request from Scheduler
@@ -110,7 +116,10 @@ public class Spider implements Runnable {
                 }
             }
 
-            this.pipelines.get(0).process(item);
+            // process the Item in Pipelines
+            for(Pipeline pipeline : this.pipelines) {
+                pipeline.process(item);
+            }
 
             System.out.println();
 

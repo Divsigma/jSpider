@@ -182,7 +182,7 @@
 
   - > Usage of API documented as @since 1.8+: https://blog.csdn.net/weixin_42687829/article/details/86751174?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control
 
-  - `Arrays.stream().reduce()`不保证是串行执行，如何按照middleware中的顺序生成一个集成的闭包（`Function<Request, Request>`）？最后还是用循环+反射+实例化对象后调用方法来做了orz
+  - `Arrays.stream().reduce()`不保证是串行执行，如何按照middleware中的顺序生成一个集成的闭包（`Function<Request, Request>`）？最后还是用**循环+反射+实例化对象后调用方法**来做了orz
 
   - 还把Response和Request封成Passable，想着方便Middleware接口定义。。。也不知有无用——用Object应该就可以！
 
@@ -195,7 +195,11 @@
 
 
 
+#### 2020.12.01（尝试简单地使用，考虑存在一级列表的详情页爬取）
 
+- 1、建立了SpiderPipeline，能够让Spider向另一个Spider的调度器添加Request——以此解决进入详情页时有多级列表的情况。但是**多个Spider线程之间启动顺序、阻塞逻辑、状态管理仍然未理清楚**（目前是先启动解析列表的Spider，再启动解析详情页的Spider）。而且**调度器多线程间共用（生产-消费模型？）**问题也值得考虑
+
+- 2、尝试爬取百度百科的心理学词条，但发现列表是通过POST方式的请求获得JSON格式的数据，框架的Request和Response刚好还没做这块。。。打算以后再以此为切入点进行项目完善。于是转而用了推酷进行测试，在**Tuicool上跑通了存在一级列表的详情页爬取（单页）**
 
 
 

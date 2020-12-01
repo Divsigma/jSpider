@@ -37,14 +37,14 @@ public class AppTest
 
         try {
 
-            List<String> downloaderMiddleware = new LinkedList<>(Arrays.asList(
+            List<String> downloaderMiddlewares = new LinkedList<>(Arrays.asList(
                     "me.project.middleware.SetCookie",
                     "me.project.middleware.SetUserAgent"
             ));
 
             new Spider()
                     .parser(new DemoParser(args[0], "utf-8"))
-                    .setDownloaderMiddleware(downloaderMiddleware)
+                    .setDownloaderMiddlewares(downloaderMiddlewares)
                     .pipeline(new ConsolePipeline())
                     .scheduler(new QueueScheduler())
                     .run();
