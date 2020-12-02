@@ -8,11 +8,19 @@ public class Request {
 
     private String url;
 
-    private Map<String, String> header;
+    private String method;
+
+    private String contentType;
+
+    private String encoding;
+
+    private Map<String, String> headers;
+
+    private Map<String, String> cookies;
 
     public Request(String url) {
         this.url = url;
-        this.header = new HashMap<>();
+        this.headers = new HashMap<>();
     }
 
     public String getUrl() {
@@ -20,10 +28,10 @@ public class Request {
     }
 
     public void setHeaderDomain(String key, String value) {
-        this.header.put(key, value);
+        this.headers.put(key, value);
     }
 
     public Map<String, String> getHeader() {
-        return header;
+        return headers;
     }
 }

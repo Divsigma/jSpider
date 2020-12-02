@@ -203,4 +203,18 @@
 
 
 
+#### 2020.12.02（完善Request和层次处理）
+
+- 1、Request不单是由一条url决定！！！还有header、method、body等信息（看看Postman可设置字段就可大概知道！以前接触过的要融会贯通啊！）。但是去看了看Webmagic源码，却没看到`setMethod()`方法在具体实例中的调用，不知到这些信息的添加逻辑应该放在哪一个环节orz，果然**实战开发经验&接触深度不足真谈不上什么设计、甚至无法理解别人设计的精妙之处orz**。。。又去看Scrapy的用法，试图思路——`scrapy.Request(*args)`添加请求，`Request`对象直接包含了各种信息，先尝试完善Request吧
+
+- 2、唯一一点进度，总算知道怎么用URLConnection执行POST方法的连接了！原来是`getOutputStream()`再往这个流里面传表单对应`Content-Type`的数据字节流！（`x-www-form-urlencoded`格式传的应该是query-string，那其他类型呢？
+
+> java doc: https://docs.oracle.com/javase/7/docs/api/java/net/URLConnection.html
+>
+> a very good demo: https://www.edureka.co/community/5406/how-to-send-http-post-requests-on-java
+
+- 
+
+
+
 1. 
