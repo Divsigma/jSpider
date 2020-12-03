@@ -16,12 +16,12 @@ public class PassageParser extends Parser {
 
         Document doc = Jsoup.parse(response.getHtml());
 
-        if(doc.getElementById("newstitle") == null) {
+        if(doc.getElementsByTag("title").size() == 0) {
             System.out.println("NOT THIS PASSAGE");
             return item;
         }
 
-        item.setTitle(doc.getElementById("newstitle").html());
+        item.setTitle(doc.getElementsByTag("title").get(0).html());
 
         return item;
     }

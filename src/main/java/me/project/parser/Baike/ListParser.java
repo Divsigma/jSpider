@@ -1,5 +1,8 @@
 package me.project.parser.Baike;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import me.project.Request;
 import me.project.Response;
 import me.project.Spider;
 import me.project.item.Item;
@@ -13,46 +16,39 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ListParser extends Parser {
 
-    ListParser(String url) {
-        this.url = url;
+    private Spider nextSpider;
+
+    public ListParser(Spider nextSpider) {
+        this.nextSpider = nextSpider;
     }
 
     @Override
     public Item process(Response response) {
+
+        System.out.println("here!!");
+
         ListItem item = new ListItem();
 
         System.out.println(response.getHtml());
 
-        Document doc = Jsoup.parse(response.getHtml());
+        JSONObject data = (JSONObject) JSON.parse(response.getHtml());
 
-        item.setId(1);
-        item.setPage(1);
-        // get title
-        item.setTitle(doc.title());
-        // get urls and images
-        List<String> images = new ArrayList<>();
-        List<String> urls = new ArrayList<>();
-        // List<String> nextUrls = new ArrayList<>();
-        Elements elements = doc.getElementById("list_article").getElementsByClass("list_article_item");
-        for(Element ele : elements) {
-            // return the value of the first element that has the specific attribute
-            urls.add(ele.getElementsByTag("a").attr("href"));
-            images.add(ele.getElementsByTag("img").attr("src"));
+        item.setTitle("list");
+        // item.setId(1);
+        // item.setPage(0);
+        for(Object obj : (List) data.get("lemmaList")) {
+            JSONObject ele = (JSONObject) obj;
+
+            Request request = new Request()
+                    .setMethod(Request.Method.GET)
+                    .setUrl((String) ele.get("lemmaUrl"));
+
+            nextSpider.addRequest(request);
         }
-        System.out.println("== Finish getting urls and images ==");
-        item.setUrls(urls);
-        item.setImages(images);
-
-        // nextUrls.add(urls.get(0));
-        // item.setNextUrls(nextUrls);
-
 
         return item;
     }
@@ -64,16 +60,27 @@ public class ListParser extends Parser {
                 "me.project.middleware.SetUserAgent"
         ));
 
+        Request index = new Request()
+                .setUrl("https://baike.baidu.com/wikitag/api/getlemmas")
+                .setMethod(Request.Method.POST)
+                .setHeaderField("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+                .setBodyField("limit", "24")
+                .setBodyField("timeout", "3000")
+                .setBodyField("filterTags", "[]")
+                .setBodyField("tagId", "76606")
+                .setBodyField("fromLemma", "false")
+                .setBodyField("contentLength", "40")
+                .setBodyField("page", "1");
+
         Spider passageSpider = new Spider()
                 .parser(new PassageParser())
                 .pipeline(new ConsolePipeline())
                 .scheduler(new QueueScheduler())
                 .setDownloaderMiddlewares(downloaderMiddlewares);
 
-        new Spider()
-                .parser(new ListParser("https://www.tuicool.com/ah/0/"))
-                .pipeline(new ConsolePipeline())
-                .pipeline(new SpiderPipeline().destSpider(passageSpider))
+        new Spider(index)
+                .parser(new ListParser(passageSpider))
+                //.pipeline(new ConsolePipeline())
                 .setDownloaderMiddlewares(downloaderMiddlewares)
                 .run();
 

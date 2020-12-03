@@ -1,7 +1,9 @@
 package me.project;
 
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Downloader {
@@ -27,12 +29,13 @@ public class Downloader {
 
         try {
             // 1. Create connection
-            String url = request.getUrl();
-            URLConnection connection = new URL(url).openConnection();
+            URLConnection connection = new URL(request.getUrl()).openConnection();
+
             // 2. Connect
-            for(Map.Entry<String, String> entry : request.getHeader().entrySet()) {
+            for(Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
                 connection.setRequestProperty(entry.getKey(), entry.getValue());
             }
+            /*
             System.out.println("== Request Header ==");
             Map<String, List<String>> requestHeader = connection.getRequestProperties();
             for(Map.Entry<String, List<String>> entry : requestHeader.entrySet()) {
@@ -41,9 +44,21 @@ public class Downloader {
                     System.out.print(item + " ");
                 }
                 System.out.println();
+            }*/
+            if(request.getMethod() == Request.Method.POST) {
+                connection.setDoOutput(true);
             }
 
             connection.connect();
+
+
+            if(request.getMethod() == Request.Method.POST) {
+                String body = request.getBodyString();
+                OutputStream os = connection.getOutputStream();
+                //
+                os.write(body.getBytes(StandardCharsets.UTF_8));
+            }
+
 
             // 3. Get the results of header and body
             response.setHeader(connection.getHeaderFields());

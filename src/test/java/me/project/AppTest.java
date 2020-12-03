@@ -42,13 +42,6 @@ public class AppTest
 
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            /*connection.setRequestProperty("limit", "24");
-            connection.setRequestProperty("timeout", "3000");
-            connection.setRequestProperty("filterTags", "[]");
-            connection.setRequestProperty("tagId", "76606");
-            connection.setRequestProperty("fromLemma", "false");
-            connection.setRequestProperty("contentLength", "40");
-            connection.setRequestProperty("page", "1");*/
 
             connection.connect();
 

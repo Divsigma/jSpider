@@ -19,6 +19,8 @@ import java.util.*;
  */
 public class Spider implements Runnable {
 
+    private Request index;
+
     private Scheduler scheduler = null;
 
     private List<String> downloaderMiddlewares = null;
@@ -31,7 +33,13 @@ public class Spider implements Runnable {
 
     public Spider() {
         this.downloaderMiddlewares = new LinkedList<>();
+        // should be initialized before run() is called
         this.pipelines = new LinkedList<>();
+    }
+
+    public Spider(Request index) {
+        this();
+        this.index = index;
     }
 
     public Spider setDownloaderMiddlewares(List<String> downloaderMiddlewares) {
@@ -65,6 +73,9 @@ public class Spider implements Runnable {
     }
 
     private void initComponent() {
+        if(this.index == null) {
+
+        }
         if(this.pipelines.size() == 0) {
             this.pipelines.add(new ConsolePipeline());
         }
@@ -82,8 +93,8 @@ public class Spider implements Runnable {
         initComponent();
 
         // construct Request from url of Parser and push it to Scheduler
-        if(this.parser.getUrl() != null) {
-            this.scheduler.push(new Request(this.parser.getUrl()));
+        if(this.index != null) {
+            this.scheduler.push(this.index);
         }
 
         while(!this.scheduler.empty()) {
@@ -97,6 +108,7 @@ public class Spider implements Runnable {
                 continue;
             }
             Response response = (Response) result;
+
 
             System.out.println("== Response Header ==");
             for (Map.Entry<String, List<String>> entry : response.getHeader().entrySet()) {
