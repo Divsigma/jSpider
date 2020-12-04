@@ -1,37 +1,58 @@
 package me.project;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Response {
 
-    private Map<String, List<String>> header;
+    private int status;
 
-    private String encoding;
+    private String charset;
 
     private String html;
 
-    public Response() {
+    private Request request;
+
+    private Map<String, String> headers;
+
+    private byte[] body;
+
+    public Response(Request request) {
+        this.request = request;
+        this.headers = new HashMap<>();
     }
 
-    public Map<String, List<String>> getHeader() {
-        return header;
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
-    public void setHeader(Map<String, List<String>> header) {
-        this.header = header;
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
 
-    public String getEncoding() {
-        return encoding;
+    public void setHeaderField(String key, String value) {
+        this.headers.put(key, value);
     }
 
-    public void setEncoding(String encoding) {
-        if(encoding == null) {
-            this.encoding = "utf-8";
-        } else {
-            this.encoding = encoding;
-        }
+    public String getHeaderField(String key) {
+        return this.headers.get(key);
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 
     public String getHtml() {
@@ -40,5 +61,9 @@ public class Response {
 
     public void setHtml(String html) {
         this.html = html;
+    }
+
+    public Request getRequest() {
+        return request;
     }
 }

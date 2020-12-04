@@ -29,7 +29,7 @@ public class ListParser extends Parser {
     @Override
     public Item process(Response response) {
 
-        System.out.println("here!!");
+        System.out.println("here in ListParser !!");
 
         ListItem item = new ListItem();
 
@@ -57,7 +57,8 @@ public class ListParser extends Parser {
 
         List<String> downloaderMiddlewares = new LinkedList<>(Arrays.asList(
                 "me.project.middleware.SetCookie",
-                "me.project.middleware.SetUserAgent"
+                "me.project.middleware.SetUserAgent",
+                "me.project.middleware.Redirect"
         ));
 
         Request index = new Request()

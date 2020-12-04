@@ -1,5 +1,6 @@
 package me.project;
 
+import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -20,18 +21,19 @@ public class Downloader {
 
     public Object download(Request request) {
 
+        // 1. Process request through middlewares
         Object result = this.throughRequest(request);
         if(result != null) {
             return result;
         }
 
-        Response response = new Response();
+        Response response = new Response(request);
 
         try {
-            // 1. Create connection
+            // 2. Create connection
             URLConnection connection = new URL(request.getUrl()).openConnection();
 
-            // 2. Connect
+            // 3. Connect
             for(Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
                 connection.setRequestProperty(entry.getKey(), entry.getValue());
             }
@@ -45,37 +47,54 @@ public class Downloader {
                 }
                 System.out.println();
             }*/
-            if(request.getMethod() == Request.Method.POST) {
+            if(request.getMethod().equals(Request.Method.POST)) {
                 connection.setDoOutput(true);
             }
 
             connection.connect();
 
-
-            if(request.getMethod() == Request.Method.POST) {
+            if(request.getMethod().equals(Request.Method.POST)) {
                 String body = request.getBodyString();
                 OutputStream os = connection.getOutputStream();
                 //
                 os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
+            // 4. Get headers -- status code, content-encoding, other header fields
+            response.setStatus(Integer.parseInt(connection.getHeaderField(0).split(" ")[1]));
 
-            // 3. Get the results of header and body
-            response.setHeader(connection.getHeaderFields());
-
-            String encoding = connection.getContentEncoding(); // not this field
-            StringBuilder htmlBuilder = new StringBuilder();
-            if(encoding == null) encoding = "utf-8";
-            response.setEncoding(encoding);
-
-            Scanner in = new Scanner(connection.getInputStream(), encoding);
-            while(in.hasNextLine()) {
-                htmlBuilder.append(in.nextLine());
+            for (Map.Entry<String, List<String>> entry : connection.getHeaderFields().entrySet()) {
+                if(entry.getKey() != null) {
+                    StringJoiner joiner = new StringJoiner("; ");
+                    for (String item : entry.getValue()) {
+                        joiner.add(item);
+                    }
+                    response.setHeaderField(entry.getKey(), joiner.toString());
+                }
             }
-            in.close();
 
-            response.setHtml(htmlBuilder.toString());
+            String[] type = response.getHeaderField("Content-Type").split("charset=");
+            if(type.length > 1) {
+                response.setCharset(type[1]);
+            } else {
+                response.setCharset("utf-8");
+            }
 
+            // 5. Parse body data
+            String charset = response.getCharset();
+            if(charset.equals("utf-8") || charset.equals("UTF-8")) {
+                StringBuilder htmlBuilder = new StringBuilder();
+                Scanner in = new Scanner(connection.getInputStream(), charset);
+                while(in.hasNextLine()) {
+                    htmlBuilder.append(in.nextLine());
+                }
+                in.close();
+                response.setHtml(htmlBuilder.toString());
+            } else {
+                System.out.println("IT WAS LEFT OUT !!!");
+            }
+
+            // 6. Process response through middlewares
             result = this.throughResponse(response);
             if(result != null) {
                 return result;

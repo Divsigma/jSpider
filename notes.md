@@ -203,7 +203,7 @@
 
 
 
-#### 2020.12.02-2020.12.03（完善Request和层次处理）
+#### 2020.12.02-2020.12.04（完善Request和层次处理）
 
 - 1、Request不单是由一条url决定！！！还有header、method、body等信息（看看Postman可设置字段就可大概知道！以前接触过的要融会贯通啊！）。但是去看了看Webmagic源码，却没看到`setMethod()`方法在具体实例中的调用，不知到这些信息的添加逻辑应该放在哪一个环节orz，果然**实战开发经验&接触深度不足真谈不上什么设计、甚至无法理解别人设计的精妙之处orz**。。。又去看Scrapy的用法，试图思路——`scrapy.Request(*args)`添加请求，`Request`对象直接包含了各种信息，先尝试完善Request吧
 
@@ -214,6 +214,10 @@
 > a very good demo: https://www.edureka.co/community/5406/how-to-send-http-post-requests-on-java
 
 - 3、将昨天的URLConnection发送POST请求流程封装到了Downloader中，也给Request加入了若干属性（headers/cookies/body先用），**重新思考流程中的一些节点**——生成一个入口Request（唤作`index`吧，**但这个`index`应该不需要保留在Spider中，看看怎么解决**），再初始化列表Spider；将下一级的Spider作为参数，用于初始化列表的Parser，所以SpiderPipeline不要了，暂时决定在列表的Parser中生成下一级的Request并传入下一级Spider的Scheduler（**耦合性逐渐上升。。？orz**）
-- 
+- 4、Successfully redirect using Middleware !
+
+
+
+
 
 1. 

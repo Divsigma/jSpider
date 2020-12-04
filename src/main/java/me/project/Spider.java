@@ -103,21 +103,15 @@ public class Spider implements Runnable {
 
             // download and get Response from Downloader
             Object result = this.downloader.download(request);
+            if(result == null) {
+                continue;
+            }
             if(result.getClass() == Request.class) {
                 this.scheduler.push((Request) result);
                 continue;
             }
+
             Response response = (Response) result;
-
-
-            System.out.println("== Response Header ==");
-            for (Map.Entry<String, List<String>> entry : response.getHeader().entrySet()) {
-                System.out.print(entry.getKey() + ": ");
-                for (String item : entry.getValue()) {
-                    System.out.print(item + " ");
-                }
-                System.out.println();
-            }
 
             // process the Response and push new Request into scheduler
             System.out.println("== Pushing new Request ==");
