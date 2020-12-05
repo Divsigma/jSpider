@@ -21,7 +21,12 @@ public class Downloader {
 
     public Object download(Request request) {
 
-        // 1. Process request through middlewares
+        // 1. Process request through middlewares,
+        // it will come out three cases:
+        //   (1) process Request in place successfully and return null
+        //   (2) get a new Request
+        //   (3) get a Response
+        // only when it return null do the download keep going
         Object result = this.throughRequest(request);
         if(result != null) {
             return result;
@@ -33,7 +38,7 @@ public class Downloader {
             // 2. Create connection
             URLConnection connection = new URL(request.getUrl()).openConnection();
 
-            // 3. Connect
+            // 3. Connect (and send POST data if needed)
             for(Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
                 connection.setRequestProperty(entry.getKey(), entry.getValue());
             }
@@ -60,7 +65,8 @@ public class Downloader {
                 os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
-            // 4. Get headers -- status code, content-encoding, other header fields
+            // 4. Get Response -- process headers:
+            // status code, content-encoding and other header fields
             response.setStatus(Integer.parseInt(connection.getHeaderField(0).split(" ")[1]));
 
             for (Map.Entry<String, List<String>> entry : connection.getHeaderFields().entrySet()) {
@@ -80,7 +86,7 @@ public class Downloader {
                 response.setCharset("utf-8");
             }
 
-            // 5. Parse body data
+            // 5. Get Response -- parse body data
             String charset = response.getCharset();
             if(charset.equals("utf-8") || charset.equals("UTF-8")) {
                 StringBuilder htmlBuilder = new StringBuilder();
@@ -94,12 +100,14 @@ public class Downloader {
                 System.out.println("IT WAS LEFT OUT !!!");
             }
 
-            // 6. Process response through middlewares
+            // 6. Get Response -- process response through middlewares
+            // it will come out two cases:
+            //   (1) process Response in place successfully and return null
+            //   (2) get a new Request
             result = this.throughResponse(response);
             if(result != null) {
                 return result;
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,10 +127,10 @@ public class Downloader {
                 if(result == null) {
                     continue;
                 } else if(result.getClass() == Request.class) {
-                    System.out.println("Stop at a new Request");
+                    System.err.println("Stopped at a new Request (from Request) ...");
                     return result;
                 } else if(result.getClass() == Response.class) {
-                    System.out.println("Stop at a Response");
+                    System.err.println("Stopped at a Response (from Request) ...");
                     return result;
                 }
             }
@@ -147,7 +155,7 @@ public class Downloader {
                 if(result == null) {
                     continue;
                 } else if(result.getClass() == Request.class) {
-                    System.out.println("Stop at a new Request");
+                    System.err.println("Stopped at a new Request (from Response) ...");
                     return result;
                 }
             }

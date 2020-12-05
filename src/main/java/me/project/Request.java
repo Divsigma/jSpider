@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-public class Request {
+public class Request implements Cloneable {
 
     private String url;
 
@@ -57,16 +57,49 @@ public class Request {
         return this;
     }
 
+    public Request setCookieField(String key, String value) {
+        this.cookies.put(key, value);
+        return this;
+    }
+
+    public String getCookieString() {
+
+        if(cookies.size() == 0) {
+            return null;
+        }
+
+        // does it need URLEncode ???
+        // cookieString will be added in header by Middleware as a String
+        StringJoiner joiner = new StringJoiner("; ");
+        try {
+            for(Map.Entry<String, String> entry : cookies.entrySet()) {
+                if(entry.getValue().equals("")) {
+                    joiner.add(entry.getKey());
+                } else {
+                    joiner.add(entry.getKey() + "=" + entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return joiner.toString();
+    }
+
     public Request setBodyField(String key, String value) {
         this.body.put(key, value);
         return this;
     }
 
+    // if I have already get bytes as UTF-8 in downloader,
+    // do it need to encode body string according to `this.encoding` here ?
+    // (I drop it out, it also works ...)
+    // should I get bytes as `this.encoding` in downloader ?
+    // (I try changing it to other charset, it also works ...)
     public String getBodyString() {
         StringJoiner joiner = new StringJoiner("&");
         try {
             for(Map.Entry<String, String> entry : body.entrySet()) {
-                joiner.add(URLEncoder.encode(entry.getKey(), encoding) + "=" + URLEncoder.encode(entry.getValue(), encoding));
+                joiner.add(entry.getKey() + "=" + entry.getValue());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,6 +109,11 @@ public class Request {
 
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     public static abstract class ContentType {

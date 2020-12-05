@@ -1,7 +1,7 @@
-package me.project.parser.Baike;
+package me.project.parser.BaikeDemo;
 
 import me.project.Response;
-import me.project.item.Baike.PassageItem;
+import me.project.item.BaikeDemo.PassageItem;
 import me.project.item.Item;
 import me.project.parser.Parser;
 import org.jsoup.Jsoup;
@@ -11,6 +11,8 @@ public class PassageParser extends Parser {
 
     @Override
     public Item process(Response response) {
+
+        System.err.println("Here in PassageParser ...");
 
         PassageItem item = new PassageItem();
 

@@ -1,4 +1,4 @@
-package me.project.parser.Baike;
+package me.project.parser.BaikeDemo;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -6,15 +6,10 @@ import me.project.Request;
 import me.project.Response;
 import me.project.Spider;
 import me.project.item.Item;
-import me.project.item.Baike.ListItem;
+import me.project.item.BaikeDemo.ListItem;
 import me.project.parser.Parser;
 import me.project.pipeline.ConsolePipeline;
-import me.project.pipeline.SpiderPipeline;
 import me.project.scheduler.QueueScheduler;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.*;
 
@@ -29,7 +24,7 @@ public class ListParser extends Parser {
     @Override
     public Item process(Response response) {
 
-        System.out.println("here in ListParser !!");
+        System.err.println("Here in ListParser ...");
 
         ListItem item = new ListItem();
 
@@ -71,7 +66,7 @@ public class ListParser extends Parser {
                 .setBodyField("tagId", "76606")
                 .setBodyField("fromLemma", "false")
                 .setBodyField("contentLength", "40")
-                .setBodyField("page", "1");
+                .setBodyField("page", "0");
 
         Spider passageSpider = new Spider()
                 .parser(new PassageParser())

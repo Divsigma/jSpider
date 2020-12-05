@@ -90,39 +90,52 @@ public class Spider implements Runnable {
     @Override
     public void run() {
 
+        // 1. Init index Request (or await status), Pipeline, Downloader
+        // and Scheduler
         initComponent();
 
-        // construct Request from url of Parser and push it to Scheduler
+        // 2. Start crawling from index Request if it is not null
         if(this.index != null) {
             this.scheduler.push(this.index);
         }
 
         while(!this.scheduler.empty()) {
-            // obtain a Request from Scheduler
+            // 3. Get a Request from Scheduler and download it, retrieving a Response or Request
             Request request = this.scheduler.poll();
-
-            // download and get Response from Downloader
             Object result = this.downloader.download(request);
-            if(result == null) {
-                continue;
-            }
             if(result.getClass() == Request.class) {
                 this.scheduler.push((Request) result);
                 continue;
             }
-
             Response response = (Response) result;
 
-            // process the Response and push new Request into scheduler
-            System.out.println("== Pushing new Request ==");
+            // 4. Process the Response through Parser, retrieving an Item
             Item item = this.parser.process(response);
+
+            // 5. Generate next Request from Item (is it necessary?)
             if(item.getNextUrls() != null) {
+                System.out.println("== Pushing new Request ==");
                 for(String url : item.getNextUrls()) {
-                    this.scheduler.push(new Request(url));
+                    // (1) One Item can generate multiple new Request from
+                    //     the original one, so the copy should be deep copy.
+                    // (2) But I only need to change the url of Request (currently),
+                    //     which is a String.
+                    //     String is a reference type and is immutably stored in
+                    //     the constant pool of JVM (different String has different reference).
+                    //     So a shallow copy is enough.
+                    try {
+                        Request nextRequest = (Request) request.clone();
+                        nextRequest.setUrl(url);
+                        this.scheduler.push(new Request(url));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
                 }
             }
 
-            // process the Item in Pipelines
+            // 6. Process the Item in Pipelines
             for(Pipeline pipeline : this.pipelines) {
                 pipeline.process(item);
             }

@@ -1,4 +1,4 @@
-package me.project.item.Baike;
+package me.project.item.BaikeDemo;
 
 import me.project.item.Item;
 

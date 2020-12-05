@@ -12,7 +12,7 @@ public class Redirect implements Middleware {
 
     @Override
     public Object handleResponse(Response response) {
-        System.out.println("Redirecting ...");
+        System.err.println("Redirecting ...");
         if(response.getStatus() == 301 || response.getStatus() == 302) {
             String url = response.getHeaderField("Location");
             Request request = response.getRequest();

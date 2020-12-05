@@ -1,6 +1,7 @@
 package me.project.item;
 
 import com.alibaba.fastjson.JSON;
+import me.project.Request;
 
 import java.util.List;
 
@@ -11,6 +12,8 @@ public abstract class Item {
     private int page = 0;
 
     private String title;
+
+    private Request request;
 
     private List<String> urls;
 
@@ -40,6 +43,10 @@ public abstract class Item {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Request getRequest() {
+        return request;
     }
 
     public List<String> getUrls() {
