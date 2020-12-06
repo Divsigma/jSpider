@@ -20,17 +20,23 @@
 
   <dependencies>
 
-    <!--JSoup-->
+    <!-- JSoup -->
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
       <version>1.13.1</version>
     </dependency>
-    <!--Fast Json-->
+    <!-- Fast Json -->
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
       <version>1.2.75</version>
+    </dependency>
+    <!-- MongoDB -->
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <version>4.1.1</version>
     </dependency>
 
     <dependency>

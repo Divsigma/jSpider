@@ -1,28 +1,48 @@
 package me.project;
 
+import java.io.DataInputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class Downloader {
 
-    Downloader() {
+    private List<String> middlewares;
+
+    final private String requestFunction = "handleRequest";
+
+    final private String responseFunction = "handleResponse";
+
+    Downloader(List<String> middlewares) {
+        this.middlewares = middlewares;
     }
 
-    public Response download(Request request) {
+    public Object download(Request request) {
 
-        Response response = new Response();
+        // 1. Process request through middlewares,
+        // it will come out three cases:
+        //   (1) process Request in place successfully and return null
+        //   (2) get a new Request
+        //   (3) get a Response
+        // only when it return null do the download keep going
+        Object result = this.throughRequest(request);
+        if(result != null) {
+            return result;
+        }
+
+        Response response = new Response(request);
 
         try {
-            // 1. Create connection
-            String url = request.getUrl();
-            URLConnection connection = new URL(url).openConnection();
-            // 2. Connect
-            //connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36");
-            //connection.setRequestProperty("Referer", "https://www.cnblogs.com/");
-            //connection.setRequestProperty("cookie", "_ga=GA1.2.156721159.1596030976; sc_is_visitor_unique=rx11857110.1596502132.D9ACCEBDD2C54F87B5C95DEB7CA3A307.1.1.1.1.1.1.1.1.1; UM_distinctid=173d8b765e7226-0708cbe4462b14-3323765-144000-173d8b765e8214; CNZZDATA1265203196=2090931422-1597067675-https%253A%252F%252Fwww.baidu.com%252F%7C1597067675; Hm_lvt_39b794a97f47c65b6b2e4e1741dcba38=1601287552; CNZZDATA4606621=cnzz_eid%3D1446730251-1603633150-https%253A%252F%252Fwww.google.com%252F%26ntime%3D1603633150; CNZZDATA1274015536=475676864-1603758599-https%253A%252F%252Fwww.baidu.com%252F%7C1603758599; __utma=226521935.156721159.1596030976.1603674476.1603935666.2; __utmz=226521935.1603935666.2.2.utmcsr=baidu|utmccn=(organic)|utmcmd=organic; Hm_lvt_fa5cea7cd463480c76a420af9fa8973e=1604021838; Hm_lvt_e5efabe75b1828de14e598fc53ceb2f9=1604230360,1604486489; CNZZDATA1276603899=1579172752-1604542399-https%253A%252F%252Fwww.google.com%252F%7C1604542399; __gads=ID=1e81aa8a44e3a123:T=1596783683:R:S=ALNI_MbZFJ1mD-GB_J4_PFcRWwLG_oEpmA; _gid=GA1.2.594657533.1606219854");
+            // 2. Create connection
+            URLConnection connection = new URL(request.getUrl()).openConnection();
+
+            // 3. Connect (and send POST data if needed)
+            for(Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
+                connection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+            /*
             System.out.println("== Request Header ==");
             Map<String, List<String>> requestHeader = connection.getRequestProperties();
             for(Map.Entry<String, List<String>> entry : requestHeader.entrySet()) {
@@ -31,32 +51,119 @@ public class Downloader {
                     System.out.print(item + " ");
                 }
                 System.out.println();
+            }*/
+            if(request.getMethod().equals(Request.Method.POST)) {
+                connection.setDoOutput(true);
             }
 
             connection.connect();
 
-            // 3. Get the results of header and body
-            response.setHeader(connection.getHeaderFields());
-
-            String encoding = connection.getContentEncoding(); // not this field
-            StringBuilder htmlBuilder = new StringBuilder();
-            if(encoding == null) encoding = "utf-8";
-            response.setEncoding(encoding);
-
-            Scanner in = new Scanner(connection.getInputStream(), encoding);
-            while(in.hasNextLine()) {
-                htmlBuilder.append(in.nextLine());
+            if(request.getMethod().equals(Request.Method.POST)) {
+                String body = request.getBodyString();
+                OutputStream os = connection.getOutputStream();
+                //
+                os.write(body.getBytes(StandardCharsets.UTF_8));
             }
-            in.close();
 
-            response.setHtml(htmlBuilder.toString());
+            // 4. Get Response -- process headers:
+            // status code, content-encoding and other header fields
+            response.setStatus(Integer.parseInt(connection.getHeaderField(0).split(" ")[1]));
 
+            for (Map.Entry<String, List<String>> entry : connection.getHeaderFields().entrySet()) {
+                if(entry.getKey() != null) {
+                    StringJoiner joiner = new StringJoiner("; ");
+                    for (String item : entry.getValue()) {
+                        joiner.add(item);
+                    }
+                    response.setHeaderField(entry.getKey(), joiner.toString());
+                }
+            }
+
+            String[] type = response.getHeaderField("Content-Type").split("charset=");
+            if(type.length > 1) {
+                response.setCharset(type[1]);
+            } else {
+                response.setCharset("utf-8");
+            }
+
+            // 5. Get Response -- parse body data
+            String charset = response.getCharset();
+            if(charset.equals("utf-8") || charset.equals("UTF-8")) {
+                StringBuilder htmlBuilder = new StringBuilder();
+                Scanner in = new Scanner(connection.getInputStream(), charset);
+                while(in.hasNextLine()) {
+                    htmlBuilder.append(in.nextLine());
+                }
+                in.close();
+                response.setHtml(htmlBuilder.toString());
+            } else {
+                System.out.println("IT WAS LEFT OUT !!!");
+            }
+
+            // 6. Get Response -- process response through middlewares
+            // it will come out two cases:
+            //   (1) process Response in place successfully and return null
+            //   (2) get a new Request
+            result = this.throughResponse(response);
+            if(result != null) {
+                return result;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return response;
+
+    }
+
+    private Object throughRequest(Request request) {
+
+        try {
+            for(String name : this.middlewares) {
+                Object result = Class.forName(name)
+                        .getMethod(this.requestFunction, Request.class)
+                        .invoke(Class.forName(name).newInstance(), request);
+                if(result == null) {
+                    continue;
+                } else if(result.getClass() == Request.class) {
+                    System.err.println("Stopped at a new Request (from Request) ...");
+                    return result;
+                } else if(result.getClass() == Response.class) {
+                    System.err.println("Stopped at a Response (from Request) ...");
+                    return result;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    private Object throughResponse(Response response) {
+
+        try {
+            ListIterator<String> iterator = this.middlewares.listIterator(this.middlewares.size());
+
+            while(iterator.hasPrevious()) {
+                String name = iterator.previous();
+                Object result = Class.forName(name)
+                        .getMethod(this.responseFunction, Response.class)
+                        .invoke(Class.forName(name).newInstance(), response);
+                if(result == null) {
+                    continue;
+                } else if(result.getClass() == Request.class) {
+                    System.err.println("Stopped at a new Request (from Response) ...");
+                    return result;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
 
     }
 
