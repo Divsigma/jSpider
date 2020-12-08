@@ -7,43 +7,11 @@ import java.util.List;
 
 public abstract class Item {
 
-    private int id = 0;
+    protected Request request;
 
-    private int page = 0;
+    protected List<String> urls;
 
-    private String title;
-
-    private Request request;
-
-    private List<String> urls;
-
-    private List<String> images;
-
-    private List<String> nextUrls;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    protected List<Request> nextRequests;
 
     public Request getRequest() {
         return request;
@@ -57,24 +25,16 @@ public abstract class Item {
         this.urls = urls;
     }
 
-    public List<String> getImages() {
-        return images;
+    public List<Request> getNextRequest() {
+        return nextRequests;
     }
 
-    public void setImages(List<String> images) {
-        this.images = images;
-    }
-
-    public List<String> getNextUrls() {
-        return nextUrls;
-    }
-
-    public void setNextUrls(List<String> nextUrls) {
-        this.nextUrls = nextUrls;
+    public void addNextRequest(Request request) {
+        this.nextRequests.add(request);
     }
 
     @Override
     public String toString() {
-        return JSON.toJSONString(this);
+    return JSON.toJSONString(this);
     }
 }

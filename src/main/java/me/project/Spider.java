@@ -112,26 +112,23 @@ public class Spider implements Runnable {
             // 4. Process the Response through Parser, retrieving an Item
             Item item = this.parser.process(response);
 
-            // 5. Generate next Request from Item (is it necessary?)
-            if(item.getNextUrls() != null) {
-                System.out.println("== Pushing new Request ==");
-                for(String url : item.getNextUrls()) {
+            // 5. Add next Request obtained from Item
+            if(item.getNextRequest().size() != 0) {
+                System.err.println("== Pushing new Request ==");
+                for(Request nextRequest : item.getNextRequest()) {
+                    try {
+                        this.scheduler.push(nextRequest);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    // Deprecated Annotation:
                     // (1) One Item can generate multiple new Request from
-                    //     the original one, so the copy should be deep copy.
+                    //     the original one, so the copy should be a 'deep copy'.
                     // (2) But I only need to change the url of Request (currently),
                     //     which is a String.
                     //     String is a reference type and is immutably stored in
                     //     the constant pool of JVM (different String has different reference).
-                    //     So a shallow copy is enough.
-                    try {
-                        Request nextRequest = (Request) request.clone();
-                        nextRequest.setUrl(url);
-                        this.scheduler.push(new Request(url));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-
+                    //     So a 'shallow copy' is enough.
                 }
             }
 

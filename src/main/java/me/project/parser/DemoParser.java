@@ -45,7 +45,7 @@ public class DemoParser extends Parser {
         }
         System.out.println("== Finish getting urls and images ==");
         item.setUrls(urls);
-        item.setImages(images);
+        // item.setImages(images);
 
         nextUrls.add(urls.get(0));
         // item.setNextUrls(nextUrls);

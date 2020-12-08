@@ -14,7 +14,7 @@ public class PassageParser extends Parser {
 
         System.err.println("Here in PassageParser ...");
 
-        PassageItem item = new PassageItem();
+        PassageItem item = new PassageItem(response.getRequest());
 
         Document doc = Jsoup.parse(response.getHtml());
 
@@ -24,6 +24,7 @@ public class PassageParser extends Parser {
         }
 
         item.setTitle(doc.getElementsByTag("title").get(0).html());
+        item.setPage(Integer.parseInt(item.getRequest().getBodyField("page")));
 
         return item;
     }

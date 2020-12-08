@@ -62,6 +62,19 @@ public class Request implements Cloneable {
         return this;
     }
 
+    public String getCookieField(String key) {
+        return this.cookies.get(key);
+    }
+
+    public Request setCookies(Map<String, String> cookies) {
+        this.cookies = cookies;
+        return this;
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
+    }
+
     public String getCookieString() {
 
         if(cookies.size() == 0) {
@@ -90,6 +103,10 @@ public class Request implements Cloneable {
         return this;
     }
 
+    public String getBodyField(String key) {
+        return this.body.get(key);
+    }
+
     // if I have already get bytes as UTF-8 in downloader,
     // do it need to encode body string according to `this.encoding` here ?
     // (I drop it out, it also works ...)
@@ -112,7 +129,7 @@ public class Request implements Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 

@@ -26,23 +26,38 @@ public class ListParser extends Parser {
 
         System.err.println("Here in ListParser ...");
 
-        ListItem item = new ListItem();
+        ListItem item = new ListItem(response.getRequest());
 
         System.out.println(response.getHtml());
 
         JSONObject data = (JSONObject) JSON.parse(response.getHtml());
 
         item.setTitle("list");
-        // item.setId(1);
-        // item.setPage(0);
+
+        // Generate Request for Spider in the next level
         for(Object obj : (List) data.get("lemmaList")) {
             JSONObject ele = (JSONObject) obj;
 
             Request request = new Request()
                     .setMethod(Request.Method.GET)
-                    .setUrl((String) ele.get("lemmaUrl"));
+                    .setUrl((String) ele.get("lemmaUrl"))
+                    // NOTE THAT THEY USE THE SAME COOKIES !!!!
+                    .setBodyField("page", response.getRequest().getBodyField("page"))
+                    .setCookies(response.getRequest().getCookies());
 
             nextSpider.addRequest(request);
+        }
+
+        // Generate next Request
+        try {
+            Request nextRequest = (Request) response.getRequest().clone();
+            int pageCount = Integer.parseInt(nextRequest.getBodyField("page"));
+            if(pageCount < 3) {
+                nextRequest.setBodyField("page", String.valueOf(pageCount+3));
+                item.addNextRequest(nextRequest);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return item;

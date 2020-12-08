@@ -218,6 +218,14 @@
 
 
 
+#### 2020.12.08（继续完善Request和层次处理）
+
+- 1、同级爬虫中的`下一个请求自动生成与调度`卡了很久（周末没干、周一没干orz），今天开始**看到webmagic中给Page（对应我的Response）加了个targetRequest，这个容器中的请求会被Spider加入当前调度器！**我考虑到同级中有的请求url需要通过解析Page（对应我的Response）得出，所以我暂时把targetRequest（对应我的nextRequests）作为了Item的属性。每一级的Spider也添加了一个流程：**在解析完Response后，将Item的nextRequests容器中的Request添加到当前Spider调度器**。
+
+  所以截至目前，一级Parser需要生成两种Request，一种是同级的下一个请求，一种是下一级请求。前者被添加到解析结果Item的列表容器中，**后者被添加直接添加到下一级Spider的调度器（此处待思考优化，耦合性逐渐混乱。。？orz）**
+
+- 
+
 
 
 1. 

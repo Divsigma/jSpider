@@ -7,7 +7,7 @@ public class ConsolePipeline implements Pipeline {
     @Override
     public void process(Item item) {
 
-        System.out.println(item.toString());
+        System.out.println("Here in Console Pipeline:" + item.toString());
 
     }
 }
