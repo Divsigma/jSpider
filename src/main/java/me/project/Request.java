@@ -133,22 +133,6 @@ public class Request implements Cloneable {
         return super.clone();
     }
 
-    public static abstract class ContentType {
-
-        public static final String JSON = "application/json";
-
-        public static final String FORM = "application/x-www-form-urlencoded";
-
-    }
-
-    public static abstract class Method {
-
-        public static final String POST = "POST";
-
-        public static final String GET = "GET";
-
-    }
-
 }
 
 

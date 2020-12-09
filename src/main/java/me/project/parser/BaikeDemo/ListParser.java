@@ -10,6 +10,7 @@ import me.project.item.BaikeDemo.ListItem;
 import me.project.parser.Parser;
 import me.project.pipeline.ConsolePipeline;
 import me.project.scheduler.QueueScheduler;
+import me.project.utils.HttpConstant;
 
 import java.util.*;
 
@@ -39,7 +40,7 @@ public class ListParser extends Parser {
             JSONObject ele = (JSONObject) obj;
 
             Request request = new Request()
-                    .setMethod(Request.Method.GET)
+                    .setMethod(HttpConstant.Method.GET)
                     .setUrl((String) ele.get("lemmaUrl"))
                     // NOTE THAT THEY USE THE SAME COOKIES !!!!
                     .setBodyField("page", response.getRequest().getBodyField("page"))
@@ -73,7 +74,7 @@ public class ListParser extends Parser {
 
         Request index = new Request()
                 .setUrl("https://baike.baidu.com/wikitag/api/getlemmas")
-                .setMethod(Request.Method.POST)
+                .setMethod(HttpConstant.Method.POST)
                 .setHeaderField("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
                 .setBodyField("limit", "24")
                 .setBodyField("timeout", "3000")
@@ -89,20 +90,22 @@ public class ListParser extends Parser {
                 .scheduler(new QueueScheduler())
                 .setDownloaderMiddlewares(downloaderMiddlewares);
 
-        new Spider(index)
+        new Thread(new Spider(index)
                 .parser(new ListParser(passageSpider))
                 //.pipeline(new ConsolePipeline())
-                .setDownloaderMiddlewares(downloaderMiddlewares)
-                .run();
+                .setDownloaderMiddlewares(downloaderMiddlewares)).start();
+                //.run();
 
-        /*
+
         try {
-            Thread.sleep(5000);
+            Thread.sleep(4000);
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
 
-        passageSpider.run();
+        // passageSpider.run();
+
+        new Thread(passageSpider).start();
 
     }
 

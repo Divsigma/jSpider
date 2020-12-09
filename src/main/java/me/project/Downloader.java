@@ -1,5 +1,7 @@
 package me.project;
 
+import me.project.utils.HttpConstant;
+
 import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -11,9 +13,9 @@ public class Downloader {
 
     private List<String> middlewares;
 
-    final private String requestFunction = "handleRequest";
+    private final String requestFunction = "handleRequest";
 
-    final private String responseFunction = "handleResponse";
+    private final String responseFunction = "handleResponse";
 
     Downloader(List<String> middlewares) {
         this.middlewares = middlewares;
@@ -52,13 +54,13 @@ public class Downloader {
                 }
                 System.out.println();
             }*/
-            if(request.getMethod().equals(Request.Method.POST)) {
+            if(request.getMethod().equals(HttpConstant.Method.POST)) {
                 connection.setDoOutput(true);
             }
 
             connection.connect();
 
-            if(request.getMethod().equals(Request.Method.POST)) {
+            if(request.getMethod().equals(HttpConstant.Method.POST)) {
                 String body = request.getBodyString();
                 OutputStream os = connection.getOutputStream();
                 //
